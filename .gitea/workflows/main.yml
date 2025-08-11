@@ -36,5 +36,6 @@ jobs:
           ./setup_venv.sh
       - name: Run ansible-lint
         run: |
+          touch .vault_password
           source ./venv/bin/activate
           PY_COLORS=1 ANSIBLE_FORCE_COLOR=1 ANSIBLE_CONFIG=./ansible.cfg ansible-lint --exclude=inventory
