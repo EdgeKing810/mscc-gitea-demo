@@ -1,5 +1,5 @@
-name: Run tests and ansible-playbook
-run-name: Run tests and ansible-playbook
+name: Run ansible-lint
+run-name: Run ansible-lint
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
       - name: Install pip, venv and git
         run: |
           apt update -qy
-          apt install -y python3-pip python3.10-venv git
+          apt install -y python3-pip python3.12-venv git
       - name: Configure safe directory
         run: git config --global --add safe.directory '*'
       - name: Run setup_venv.sh
