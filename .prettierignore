@@ -1,0 +1,2 @@
+inventory/mscc-demo/group_vars/all/custom.yml
+inventory/mscc-demo/group_vars/all/vault.yml

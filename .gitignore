@@ -1,0 +1,9 @@
+venv
+ansible_collections
+.vscode
+.trunk
+*.DS_Store
+*.retry
+*.pyc
+.venv
+.vault_password

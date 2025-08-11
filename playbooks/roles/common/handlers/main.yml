@@ -1,0 +1,41 @@
+---
+- name: Start Docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+  become: true
+
+- name: Enable Docker
+  ansible.builtin.service:
+    name: docker
+    enabled: true
+  become: true
+
+- name: Start Nginx
+  ansible.builtin.service:
+    name: nginx
+    state: started
+  become: true
+
+- name: Enable Nginx
+  ansible.builtin.service:
+    name: nginx
+    enabled: true
+  become: true
+
+- name: Start Firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+  become: true
+
+- name: Enable Firewalld
+  ansible.builtin.service:
+    name: firewalld
+    enabled: true
+  become: true
+
+- name: Reload Firewalld
+  ansible.builtin.command: firewall-cmd --reload
+  become: true
+  changed_when: true

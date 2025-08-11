@@ -1,0 +1,40 @@
+name: Run tests and ansible-playbook
+run-name: Run tests and ansible-playbook
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    # inputs:
+    #   logLevel:
+    #     description: 'Log level'
+    #     required: true
+    #     default: 'info'
+    #     type: choice
+    #     options:
+    #       - info
+    #       - warning
+    #       - debug
+
+jobs:
+  perform-ansible-lint:
+    name: Perform Ansible Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install pip, venv and git
+        run: |
+          apt update -qy
+          apt install -y python3-pip python3.10-venv git
+      - name: Configure safe directory
+        run: git config --global --add safe.directory '*'
+      - name: Run setup_venv.sh
+        run: |
+          chmod +x setup_venv.sh
+          ./setup_venv.sh
+      - name: Run ansible-lint
+        run: |
+          source ./venv/bin/activate
+          PY_COLORS=1 ANSIBLE_FORCE_COLOR=1 ANSIBLE_CONFIG=./ansible.cfg ansible-lint --exclude=inventory

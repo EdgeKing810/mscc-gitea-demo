@@ -1,0 +1,90 @@
+---
+- name: Create admin group
+  ansible.builtin.group:
+    name: admin
+    state: present
+  become: true
+
+- name: Allow admin sudo access without password
+  ansible.builtin.lineinfile:
+    dest: /etc/sudoers
+    regexp: '^%admin'
+    line: '%admin ALL=(ALL) NOPASSWD:ALL'
+    backup: true
+    validate: visudo -cf %s
+  become: true
+
+- name: Check if zsh is installed
+  ansible.builtin.stat:
+    path: /bin/zsh
+  register: access_zsh_installed
+
+- name: Create accounts
+  ansible.builtin.user:
+    name: '{{ item.key }}'
+    password: ''
+    shell: '{{ "/bin/zsh" if access_zsh_installed.stat.exists else "/bin/bash" }}'
+    group: admin
+    generate_ssh_key: false
+    state: present
+  loop: '{{ access.admin | dict2items }}'
+  become: true
+
+- name: Configure ssh keys
+  ansible.posix.authorized_key:
+    user: '{{ item.key }}'
+    key: '{{ item.value }}'
+    state: present
+  loop: '{{ access.admin | dict2items }}'
+  become: true
+
+- name: Replace default sshd_config file
+  ansible.builtin.copy:
+    src: sshd_config
+    dest: /etc/ssh/sshd_config
+    mode: '0644'
+  become: true
+  notify:
+    - Restart sshd
+    - Restart ssh
+
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    update_cache: true
+    state: present
+  become: true
+  notify: Enable and start fail2ban
+
+- name: Configure fail2ban
+  ansible.builtin.copy:
+    src: '{{ item }}'
+    dest: '/etc/fail2ban/{{ item }}'
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  loop:
+    - fail2ban.local
+    - jail.local
+  notify: Restart fail2ban
+
+- name: Run handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Modify inventory file in order to login with current user instead
+  ansible.builtin.lineinfile:
+    path: '{{ ansible_inventory_sources[0] }}/hosts'
+    regexp: '^{{ inventory_hostname }} .*'
+    line: '{{ inventory_hostname }} ansible_host={{ ansible_host }} ansible_ssh_user={{ lookup("env", "USER") }}' # noqa yaml[line-length]
+  loop: '{{ ansible_play_hosts }}'
+  delegate_to: localhost
+
+- name: Add host to in-memory inventory
+  ansible.builtin.add_host:
+    hostname: '{{ inventory_hostname }}'
+    ansible_host: '{{ ansible_host }}'
+    ansible_ssh_user: '{{ lookup("env", "USER") }}'
+
+- name: Refresh inventory
+  ansible.builtin.meta: refresh_inventory

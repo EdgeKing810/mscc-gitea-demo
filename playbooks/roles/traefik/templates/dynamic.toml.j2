@@ -1,0 +1,71 @@
+#jinja2:variable_start_string:'%%', variable_end_string:'%%'
+[metrics]
+  [metrics.prometheus]
+    addEntryPointsLabels = true
+    addRoutersLabels = true
+    addServicesLabels = true
+
+[http.serversTransports.default-transport]
+  insecureSkipVerify = true
+
+[http.middlewares]
+  [http.middlewares.https_redirect.redirectScheme]
+    scheme = "https"
+    permanent = true
+  [http.middlewares.auth.basicAuth]
+    usersfile = "/etc/traefik/.htpasswd"
+  [http.middlewares.global-rate-limit.rateLimit]
+    average = 2000
+    burst = 3000
+    period = "1m"
+
+[http.routers]
+  [http.routers.traefik-api]
+    rule = "Host(`%% traefik_web_ui_addr %%`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+    service = "api@internal"
+    middlewares = ["auth"]
+
+{% for service in traefik_services %}
+  [http.routers.%% service.name %%-http]
+    rule = "Host(`%% service.host %%`)"
+    service = "%% service.name %%"
+    entrypoints = ["http"]
+    # middlewares = ["https_redirect"]
+  [http.routers.%% service.name %%-https]
+    rule = "Host(`%% service.host %%`)"
+    service = "%% service.name %%"
+    entrypoints = ["https"]
+    {% if service.auth is defined and service.auth %}
+    middlewares = ["auth"]
+    {% endif %}
+    [http.routers.%% service.name %%-https.tls]
+      certResolver = "acme-http"
+{% endfor %}
+
+{% if traefik_services | length > 0 %}
+[http.services]
+{% for service in traefik_services %}
+  [http.services.%% service.name %%.loadBalancer]
+    serversTransport = "default-transport"
+    [[http.services.%% service.name %%.loadBalancer.servers]]
+      scheme = "http"
+      url = "%% service.service %%"
+{% endfor %}
+{% endif %}
+
+{% if traefik_tcp_routers | length > 0 %}
+[tcp.routers]
+{% for router in traefik_tcp_routers %}
+  [tcp.routers.%% router.name %%-service-tcp]
+    rule = "HostSNI(`*`)"
+    service = "%% router.name %%-service"
+    entrypoints = ["%% router.entrypoint %%"]
+{% endfor %}
+
+[tcp.services]
+{% for router in traefik_tcp_routers %}
+  [tcp.services.%% router.name %%-service.loadBalancer]
+    [[tcp.services.%% router.name %%-service.loadBalancer.servers]]
+      address = "%% router.target_host %%:%% router.target_port %%"
+{% endfor %}
+{% endif %}

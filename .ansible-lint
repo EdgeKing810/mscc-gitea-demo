@@ -1,0 +1,33 @@
+---
+profile: production
+offline: false
+
+var_naming_pattern: '^[a-z_][a-z0-9_]*$'
+
+skip_list:
+  - var-naming[no-role-prefix]
+
+mock_modules:
+  - community.general.npm
+  - community.general.timezone
+  - community.general.gem
+  - community.general.consul
+  - community.general.nomad_job
+  - community.hashi_vault.vault_kv2_get
+  - community.hashi_vault.vault_kv2_write
+
+enable_list:
+  - args
+  - empty-string-compare
+  - no-log-password
+  - no-same-owner
+  - yaml
+
+exclude_paths:
+  - .git/
+  - .gitea/
+  - .github/
+  - .trunk/
+  - .vscode/
+  - venv/
+  - inventory/mscc-demo/group_vars/all/custom.yml

@@ -1,0 +1,147 @@
+---
+access:
+  admin:
+    root: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDCqxAULC+ij8V/6cF/EfHXyl6Ts28OGSMwcKg2sqXJZaO/B/BM4KYzx6kJpiCLdwDiJEd/TrYtNB1l/Yq9EVb2QMZZzposEi3mzhQuSJjLmRkxPk4BO0cd+RUl2deZ8iNw4v/7Vb67Ol6ieBbVt9yKzazNRPUJwCCIaAKWDYUjd8q1SyEPdx2oeFyo7M44BZBQcbcIzuhZ3v9H8Hp/6cBOfuJxpqZxXMRmhniaWCduBnAiIPnwXMIBNSr/L/q3B1RiOTB+OY5KaUZCLirgzLHgauIx22LFCdWLrVYYHSh6cXtN/HTqDi8USF9lbQXevjdh7lZk8SdHKLy3Ca+CgvxDox8TXWGh5RXGmqwObLw8sxvW9x47JKjmre9QkVeO1AgQBm0FVSAd/KIBir4XIrumzvHqRsZBMQLWQ4kJU68ZPALZE2oOuCBuesjhF9YOpsEJcMonnoQp1lWq4rmEMGqlwdmLu1umh+iY0FTbsfJb4lDsnLopWeLTplhFZ3OjODSMFZ2Mhvx6AMqACPi4nhXQGRkMaHSiM9LdrcuE6DCWJHkJpaWagScNY2mzYZfqSlsNu5SJTcqeUB+HH81gI4kIdhdbAYDVOpoF66ljDl74VZgC+lhiH46eLCcT3piR8n08l5MVuZpqUeee8HBQKNaQyCu+YcZAjMJ3simICpVFwQ== kishan@kinesis.games # noqa yaml[line-length]
+    edgeking810: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDCqxAULC+ij8V/6cF/EfHXyl6Ts28OGSMwcKg2sqXJZaO/B/BM4KYzx6kJpiCLdwDiJEd/TrYtNB1l/Yq9EVb2QMZZzposEi3mzhQuSJjLmRkxPk4BO0cd+RUl2deZ8iNw4v/7Vb67Ol6ieBbVt9yKzazNRPUJwCCIaAKWDYUjd8q1SyEPdx2oeFyo7M44BZBQcbcIzuhZ3v9H8Hp/6cBOfuJxpqZxXMRmhniaWCduBnAiIPnwXMIBNSr/L/q3B1RiOTB+OY5KaUZCLirgzLHgauIx22LFCdWLrVYYHSh6cXtN/HTqDi8USF9lbQXevjdh7lZk8SdHKLy3Ca+CgvxDox8TXWGh5RXGmqwObLw8sxvW9x47JKjmre9QkVeO1AgQBm0FVSAd/KIBir4XIrumzvHqRsZBMQLWQ4kJU68ZPALZE2oOuCBuesjhF9YOpsEJcMonnoQp1lWq4rmEMGqlwdmLu1umh+iY0FTbsfJb4lDsnLopWeLTplhFZ3OjODSMFZ2Mhvx6AMqACPi4nhXQGRkMaHSiM9LdrcuE6DCWJHkJpaWagScNY2mzYZfqSlsNu5SJTcqeUB+HH81gI4kIdhdbAYDVOpoF66ljDl74VZgC+lhiH46eLCcT3piR8n08l5MVuZpqUeee8HBQKNaQyCu+YcZAjMJ3simICpVFwQ== kishan@kinesis.games # noqa yaml[line-length]
+    worker: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDeT641t7758iHj+/tfSY8/NBd8pyirVtBvR9vsidAB7rBXvjIm6CAga+DuFjHi34NSn+L8VyaYhiwo9+Z1dxbMPV/eEaRMLuIdzrawPzUS7sap8H2nAAkaQH8vkizlWL+7F64TQ6PCBKMoFJ8aZarRfMPWYoLL/BNssssWCgqy7zlatorSkSs+dnn0cclLJWLwaaRUVoOcPl6VK+aVtLY4DIjq29XmvPJiIyN8bWSqnqbJTIbYJmfME2068jV8jdQ4+P/Imda4VrzjPDt8BFKzdvGEp5z1vlhrEfBrJBghkDawVt/j//CiiAXqnvbQzdQpRtr8u1EDDTfN5p6tN7/P3R9NGrh/M7dHJj7Q5opdOsTO74xpciuyCj9CUiQSp39pUWYyKDA+eDuVDxkSiYbfxnXD/nxQ3+PdJgXN2QJeQKK6+dYzdVOiCWW6ndcxqfxTUTSMthLNYoon/JN05iTu/TEKVyVh9tb9n2C6HXxPhbSGNu/DIMQKczLvq87MV7SgsWhUo+qONhIOZ5aJBPEREoEfrbP+D0d763cFTGI/95ryjW3omeRJDSNX2KPsT01Se+KSax4C45cVSLfdb+jk3DpRF28y0dH9PAr2C8Bud1WplNMZX4KNhQDq6eTID5Nc8AviclM2lJDBd356ElWnMkxJECy3V+f+8U7Hk0i8fw== # noqa yaml[line-length]
+
+tenant: kinesis-nomad
+issuer_name: kinesisgames
+internal_ip_start_bits: '10.104.0'
+nomad_cidr: '10.104.0.0/20'
+
+root_ssh_key_size: 4096
+timezone: Indian/Mauritius
+
+swap_file_state: present
+swap_file_path: /swapfile
+swap_file_size_mb: '2000'
+swap_file_existing_size_mb: '0'
+swap_swappiness: '40'
+swap_file_create_command: 'dd if=/dev/zero of={{ swap_file_path }} bs=1M count={{ swap_file_size_mb }}'
+
+letsencrypt_email_address: kishan@konnect.dev
+cloudflare_email_address: '{{ letsencrypt_email_address }}'
+traefik_web_ui_addr: traefik.mscc.kinesis.world
+
+traefik_auth_users:
+  - admin
+  - edgeking810
+
+traefik_services:
+  - name: traefik-service
+    host: traefik.mscc.kinesis.world
+    service: 'http://127.0.0.1:8081'
+    auth: true
+
+traefik_tcp_routers:
+  - name: gitea-ssh
+    host: ssh.gitea.mscc.kinesis.world
+    entrypoint: gitea_ssh
+    source_port: 4444
+    target_port: 2222
+    target_host: 127.0.0.1
+
+base_docker_volumes_dir: '/opt/docker/volumes'
+
+docker_containers:
+  - name: portainer
+    image: 'portainer/portainer-ce:2.30.0'
+    ports: ['8000:8000', '9000:9000', '9443:9443']
+    network:
+      domain_name: portainer.mscc.kinesis.world
+      custom_port: 9000
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '{{ base_docker_volumes_dir }}/portainer/data:/data'
+    recreate: false
+    network_mode: host
+  - name: gitea-db
+    image: mysql:8
+    ports: []
+    variables:
+      MYSQL_ROOT_PASSWORD: '{{ secrets["gitea-db"]["root_password"] }}'
+      MYSQL_DATABASE: '{{ secrets["gitea-db"]["database"] }}'
+      MYSQL_USER: '{{ secrets["gitea-db"]["username"] }}'
+      MYSQL_PASSWORD: '{{ secrets["gitea-db"]["password"] }}'
+    networks:
+      - name: gitea-net
+        aliases: ['gitea-db-svc']
+    volumes:
+      - '{{ base_docker_volumes_dir }}/gitea-db:/var/lib/mysql'
+  - name: gitea
+    image: gitea/gitea:1.23.8
+    ports: ['2222:22']
+    variables:
+      GITEA__database__NAME: '{{ secrets["gitea-db"]["database"] }}'
+      GITEA__database__USER: '{{ secrets["gitea-db"]["username"] }}'
+      GITEA__database__PASSWD: '{{ secrets["gitea-db"]["password"] }}'
+      GITEA__database__DB_TYPE: mysql
+      GITEA__database__HOST: 'gitea-db-svc:3306'
+    networks:
+      - name: gitea-net
+    network:
+      auth: false
+      domain_name: gitea.mscc.kinesis.world
+      custom_port: 3000
+    volumes:
+      - '{{ base_docker_volumes_dir }}/gitea-data:/data'
+  - name: gitea-runner
+    image: gitea/act_runner:0.2.11
+    variables:
+      CONFIG_FILE: /config.yaml
+      GITEA_INSTANCE_URL: https://gitea.mscc.kinesis.world/
+      GITEA_RUNNER_REGISTRATION_TOKEN: '{{ secrets["gitea-runner"]["registration_token"] }}'
+    data:
+      - dest: '{{ base_docker_volumes_dir }}/gitea-runner/config.yaml'
+        content: |
+          log:
+            level: info
+
+          runner:
+            file: .runner
+            capacity: 2
+            envs: {}
+            env_file: .env
+            timeout: 3h
+            insecure: false
+            fetch_timeout: 5s
+            fetch_interval: 2s
+            labels:
+              - "ubuntu-latest:docker://gitea/runner-images:ubuntu-latest"
+              - "ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04"
+              - "ubuntu-20.04:docker://gitea/runner-images:ubuntu-20.04"
+              - "node-latest:docker://node:latest"
+              - "rust-latest:docker://rust:latest"
+              - "docker-19-dind:docker://docker:19.03.12"
+
+          cache:
+            enabled: true
+            dir: /tmp/.cache
+            host: ""
+            port: 0
+            external_server: ""
+
+          container:
+            network: bridge
+            privileged: false
+            options:
+            workdir_parent:
+            valid_volumes: []
+            docker_host: ""
+            force_pull: true
+            force_rebuild: false
+
+          host:
+            workdir_parent:
+    networks:
+      - name: gitea-net
+    volumes:
+      - '{{ base_docker_volumes_dir }}/gitea-runner/config.yaml:/config.yaml'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+
+cron_jobs:
+  - name: backup-gitea-db
+    job: 'docker exec gitea-db /bin/bash -c "mkdir -p /var/lib/mysql/backups/ && find /var/lib/mysql/backups/ -mtime +1 -type f -delete && mysqldump -uroot -p''{{ secrets["gitea-db"]["root_password"] }}'' {{ secrets["gitea-db"]["database"] }} > /var/lib/mysql/backups/dump.$(date +%F_%R).sql"'
+    minute: '0'
+    hour: '*/12'

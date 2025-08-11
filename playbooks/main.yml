@@ -1,0 +1,22 @@
+---
+- name: Include custom vars and configure access
+  hosts: all
+  roles:
+    - role: custom_vars
+      tags: always
+    - role: access
+      tags: access
+
+- name: Common settings and configuration
+  hosts: all
+  roles:
+    - role: common
+      tags: common
+
+- name: Deploy traefik and other docker containers
+  hosts: all
+  roles:
+    - role: traefik
+      tags: traefik
+    - role: docker
+      tags: docker

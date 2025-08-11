@@ -1,0 +1,14 @@
+[INCLUDES]
+[DEFAULT]
+# "maxretry" is the number of failures before a host get banned.
+maxretry = 4
+backend = systemd
+[sshd]
+[sshd-ddos]
+[dropbear]
+[selinux-ssh]
+[nginx-http-auth]
+[nginx-botsearch]
+[recidive]
+maxretry = 3
+enabled = true

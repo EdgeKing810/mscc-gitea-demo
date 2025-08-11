@@ -1,0 +1,47 @@
+---
+- name: Set timezone
+  community.general.timezone:
+    name: '{{ timezone }}'
+  when: timezone is defined
+  become: true
+
+- name: Configure swap
+  ansible.builtin.import_tasks: swap.yml
+  become: true
+  become_user: root
+
+- name: Update and upgrade packages
+  ansible.builtin.apt:
+    upgrade: true
+    update_cache: true
+  become: true
+
+- name: Add cronjob for upgrading packages
+  ansible.builtin.cron:
+    name: Upgrade packages
+    minute: '0'
+    hour: '0'
+    day: '*'
+    month: '*'
+    weekday: '*'
+    job: apt update && apt upgrade -y
+    user: root
+    state: present
+  become: true
+
+- name: Install Common packages # noqa package-latest
+  ansible.builtin.apt:
+    pkg: '{{ common_packages }}'
+    state: latest
+    update_cache: true
+  become: true
+
+- name: Docker Setup
+  ansible.builtin.import_tasks: docker.yml
+
+- name: Install yq
+  ansible.builtin.get_url:
+    url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+    dest: /usr/bin/yq
+    mode: a+x
+  become: true

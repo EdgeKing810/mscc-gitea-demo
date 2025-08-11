@@ -1,0 +1,75 @@
+---
+- name: Create volumes directory
+  ansible.builtin.file:
+    path: '{{ item | split(":") | first | split(".") | first }}'
+    state: directory
+    mode: '0755'
+  loop: '{{ container.volumes | default([]) }}'
+  become: true
+
+- name: Reset container labels
+  ansible.builtin.set_fact:
+    _labels: []
+
+- name: Add traefik labels
+  ansible.builtin.set_fact:
+    _labels:
+      - key: 'traefik.enable'
+        value: 'true'
+      - key: 'traefik.http.routers.{{ container.name }}-service-http.rule'
+        value: 'Host(`{{ container.network.domain_name }}`)'
+      - key: 'traefik.http.routers.{{ container.name }}-service-http.entrypoints'
+        value: 'http'
+      - key: 'traefik.http.routers.{{ container.name }}-service-https.rule'
+        value: 'Host(`{{ container.network.domain_name }}`)'
+      - key: 'traefik.http.routers.{{ container.name }}-service-https.entrypoints'
+        value: 'https'
+      - key: 'traefik.http.routers.{{ container.name }}-service-https.tls.certResolver'
+        value: 'acme-http'
+  when: container.network is defined and container.network.domain_name is defined
+
+- name: Add traefik labels for auth
+  ansible.builtin.set_fact:
+    _labels: '{{ _labels + [{"key": "traefik.http.routers.{{ container.name }}-service-https.middlewares", "value": "auth@file"}] }}'
+  when: container.network is defined and (container.network.auth | default(false))
+
+- name: Add traefik labels for custom_port
+  ansible.builtin.set_fact:
+    _labels: '{{ _labels + [{"key": "traefik.http.services.{{ container.name }}-service-https.loadbalancer.server.port", "value": "{{ container.network.custom_port | default(80) }}"}] }}' # noqa yaml[line-length]
+
+- name: Save data to file
+  ansible.builtin.copy:
+    content: '{{ item.content }}'
+    dest: '{{ item.dest }}'
+    mode: '0644'
+  loop: '{{ container.data | default([]) }}'
+  become: true
+
+- name: Create network(s)
+  community.docker.docker_network:
+    name: '{{ item.name }}'
+    ipam_config: '{{ item.ipam_config | default(omit) }}'
+    state: present
+  loop: '{{ container.networks | default([]) }}'
+
+- name: 'Deploy container: {{ container.name }}'
+  community.docker.docker_container:
+    name: '{{ container.name }}'
+    image: '{{ container.image }}'
+    state: started
+    user: '{{ container.user | default(omit) }}'
+    command: '{{ container.command | default(omit) }}'
+    env: '{{ container.variables | default({}) }}'
+    ports: '{{ container.ports | default([]) }}'
+    volumes: '{{ container.volumes | default([]) }}'
+    restart: '{{ container.recreate | default(false) }}'
+    restart_policy: always
+    labels: '{{ _labels | default([]) | items2dict }}'
+    recreate: '{{ container.recreate | default(false) }}'
+    healthcheck: '{{ container.healthcheck | default(omit) }}'
+    network_mode: '{{ container.network_mode | default(omit) }}'
+    networks: '{{ container.networks | default(omit) }}'
+    capabilities: '{{ container.capabilities | default(omit) }}'
+    container_default_behavior: '{{ container.container_default_behavior | default(omit) }}'
+    interactive: '{{ container.interactive | default(omit) }}'
+    tty: '{{ container.tty | default(omit) }}'

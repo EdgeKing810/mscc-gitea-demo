@@ -1,0 +1,55 @@
+#jinja2:variable_start_string:'%%', variable_end_string:'%%'
+[accessLog]
+
+[metrics]
+  [metrics.prometheus]
+
+[ping]
+
+[tracing]
+  addInternals = true
+
+[log]
+level = "DEBUG"
+
+[entryPoints]
+    [entryPoints.http]
+    address = ":80"
+    asDefault = true
+    [entryPoints.http.http]
+      middlewares = ["global-rate-limit@file"]
+    [entryPoints.traefik]
+    address = ":8081"
+    [entryPoints.traefik.http]
+      middlewares = ["global-rate-limit@file"]
+    [entryPoints.https]
+    address = ":443"
+    [entryPoints.https.http]
+      middlewares = ["global-rate-limit@file"]
+    [entryPoints.https.http.tls]
+      certResolver = "acme-http"
+{% if traefik_tcp_routers is defined %}
+{% for router in traefik_tcp_routers %}
+    [entryPoints.%% router.entrypoint %%]
+    address = ":%% router.source_port %%"
+{% endfor %}
+{% endif %}
+
+[api]
+    dashboard = true
+    insecure  = true
+
+[providers.file]
+  directory = "/opt/traefik/"
+
+[certificatesResolvers.acme-http.acme]
+  email = "%% letsencrypt_email_address %%"
+  storage = "/certs/acme.json"
+  caServer = "https://acme-v02.api.letsencrypt.org/directory" # Production
+  # caServer = "https://acme-staging-v02.api.letsencrypt.org/directory" # Staging
+  [certificatesResolvers.acme-http.acme.httpChallenge]
+    entryPoint = "http"
+
+[providers.docker]
+    endpoint = "unix:///var/run/docker.sock"
+    exposedByDefault = true

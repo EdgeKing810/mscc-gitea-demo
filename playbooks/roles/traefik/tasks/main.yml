@@ -1,0 +1,83 @@
+---
+- name: Create base volume directory for traefik
+  ansible.builtin.file:
+    path: '{{ base_docker_volumes_dir }}/traefik'
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Create volume directory for traefik certificates
+  ansible.builtin.file:
+    path: '{{ base_docker_volumes_dir }}/traefik/certs'
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Template traefik configuration files
+  ansible.builtin.template:
+    src: '{{ item }}.toml.j2'
+    dest: '{{ base_docker_volumes_dir }}/traefik/{{ item }}.toml'
+    mode: '0644'
+  loop:
+    - traefik
+    - dynamic
+  become: true
+
+- name: Install passlib python package
+  ansible.builtin.pip:
+    name: passlib
+    state: present
+  become: true
+
+- name: Generate passwords for Traefik users
+  ansible.builtin.set_fact:
+    traefik_user_passwords: "{{ traefik_user_passwords | default({}) | combine({item: lookup('ansible.builtin.password', '/dev/null', length=32, chars=['ascii_letters', 'digits'])}) }}" # noqa yaml[line-length]
+  loop: '{{ traefik_auth_users }}'
+  no_log: true
+
+- name: Create decrypted password file
+  ansible.builtin.copy:
+    content: |
+      {% for user, password in traefik_user_passwords.items() %}
+      {{ user }}:{{ password }}
+      {% endfor %}
+    dest: '{{ base_docker_volumes_dir }}/traefik/passwords.decrypted'
+    mode: '0640'
+  become: true
+
+- name: Create password file for traefik with hashed passwords
+  community.general.htpasswd:
+    path: '{{ base_docker_volumes_dir }}/traefik/passwords'
+    name: '{{ item.key }}'
+    password: '{{ item.value }}'
+    crypt_scheme: bcrypt
+    create: true
+    mode: '0640'
+    state: present
+  loop: '{{ traefik_user_passwords | dict2items }}'
+  become: true
+
+- name: Deploy traefik container
+  community.docker.docker_container:
+    name: traefik
+    image: 'traefik:v3.4.0'
+    state: started
+    recreate: true
+    env:
+      PORT: '80'
+      CLOUDFLARE_EMAIL: "{{ cloudflare_email_address | default('null') }}"
+      CLOUDFLARE_API_KEY: "{{ cloudflare_api_key | default('null') }}"
+    labels: 'traefik.http.services.traefik.loadbalancer.server.port=80'
+    network_mode: host
+    ports:
+      - '80:80'
+      - '443:443'
+      - '8081:8081'
+    volumes:
+      - '{{ base_docker_volumes_dir }}/traefik/traefik.toml:/etc/traefik/traefik.toml'
+      - '{{ base_docker_volumes_dir }}/traefik/dynamic.toml:/opt/traefik/dynamic.toml'
+      - '{{ base_docker_volumes_dir }}/traefik/certs:/certs'
+      - '{{ base_docker_volumes_dir }}/traefik/passwords:/etc/traefik/.htpasswd'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    restart: false
+    restart_policy: always

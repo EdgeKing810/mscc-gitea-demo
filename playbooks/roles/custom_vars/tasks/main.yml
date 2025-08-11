@@ -1,0 +1,3 @@
+---
+- name: Load custom variables
+  ansible.builtin.include_vars: '{{ ansible_inventory_sources[0] }}/group_vars/all/custom.yml'

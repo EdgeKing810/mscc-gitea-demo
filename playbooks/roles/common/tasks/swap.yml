@@ -1,0 +1,64 @@
+---
+- name: Manage swap file entry in fstab
+  ansible.posix.mount:
+    name: swap
+    src: '{{ swap_file_path }}'
+    fstype: swap
+    opts: sw
+    state: '{{ swap_file_state }}'
+
+- name: Check if swap file exists
+  ansible.builtin.stat:
+    path: '{{ swap_file_path }}'
+    get_checksum: false
+  register: _swap_file_check
+  changed_when: false
+
+- name: Set variable for existing swap file size
+  ansible.builtin.set_fact:
+    swap_file_existing_size_mb: '{{ (_swap_file_check.stat.size / 1024 / 1024) | int }}'
+  when: _swap_file_check.stat.exists
+
+- name: Disable swap
+  ansible.builtin.command: swapoff -a
+  when: swap_file_state == 'absent' or (swap_file_state == 'present' and swap_file_existing_size_mb != swap_file_size_mb)
+  changed_when: true
+
+- name: Ensure swap file doesn't exist
+  ansible.builtin.file:
+    path: '{{ swap_file_path }}'
+    state: absent
+  when: swap_file_state == 'absent' or (swap_file_state == 'present' and swap_file_existing_size_mb != swap_file_size_mb)
+
+- name: Ensure swap file exists # noqa no-free-form
+  ansible.builtin.command: >
+    {{ swap_file_create_command }}
+    creates='{{ swap_file_path }}'
+  register: _swap_file_create
+  when: swap_file_state == "present"
+
+- name: Set permissions on swap file
+  ansible.builtin.file:
+    path: '{{ swap_file_path }}'
+    owner: root
+    group: root
+    mode: '0600'
+  when: swap_file_state == "present"
+
+- name: Make swap file if necessary
+  ansible.builtin.command: mkswap {{ swap_file_path }}
+  when: swap_file_state == "present" and _swap_file_create is changed
+  register: _mkswap_result
+  changed_when: true
+
+- name: Run swapon on the swap file
+  ansible.builtin.command: swapon {{ swap_file_path }}
+  when: swap_file_state == "present" and _mkswap_result is changed
+  changed_when: true
+
+- name: Set swappiness
+  ansible.posix.sysctl:
+    name: vm.swappiness
+    value: '{{ swap_swappiness }}'
+    state: present
+  when: swap_file_state == "present"
