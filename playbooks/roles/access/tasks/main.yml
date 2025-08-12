@@ -14,16 +14,11 @@
     validate: visudo -cf %s
   become: true
 
-- name: Check if zsh is installed
-  ansible.builtin.stat:
-    path: /bin/zsh
-  register: access_zsh_installed
-
 - name: Create accounts
   ansible.builtin.user:
     name: '{{ item.key }}'
     password: ''
-    shell: '{{ "/bin/zsh" if access_zsh_installed.stat.exists else "/bin/bash" }}'
+    shell: '/bin/bash'
     group: admin
     generate_ssh_key: false
     state: present

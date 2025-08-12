@@ -1,14 +1,4 @@
 ---
-- name: Login to custom docker registry
-  community.docker.docker_login:
-    registry_url: '{{ custom_docker_registry.server_address }}'
-    username: '{{ custom_docker_registry.username }}'
-    password: '{{ custom_docker_registry.password }}'
-  become: true
-  become_user: '{{ item.key }}'
-  loop: '{{ access.admin | dict2items }}'
-  when: custom_docker_registry is defined
-
 - name: Deploy Docker containers
   ansible.builtin.include_tasks: container.yml
   loop: '{{ docker_containers }}'
